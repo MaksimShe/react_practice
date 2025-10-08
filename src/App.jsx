@@ -27,7 +27,7 @@ export const App = () => {
   const [filterByCategory, setFilterByCategory] = useState([]);
   const [filterBySearch, setFilterBySearch] = useState('');
   const [sortBy, setSortBy] = useState('');
-  const [sortIsReversed, setSortIsReversed] = useState(false);
+  const [sortDirection, setSortDirection] = useState('asc');
 
   const filterProducts = () => {
     const sorted = [...products];
@@ -73,6 +73,22 @@ export const App = () => {
     return arr;
   };
 
+  function allFiltersDefault() {
+    if (filterByCategory.length === 0 && filterByName === 'all' && filterBySearch === '') {
+      return true;
+    }
+    return false;
+  }
+
+  function handleSortName() {
+    if('name' === sortBy) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy('name');
+      setSortDirection(sortDirection === 'asc');
+    }
+  }
+
   const handleClearSearch = event => {
     setFilterBySearch('');
   }
@@ -112,7 +128,7 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
-                className={filterByName === 'all' && 'is-active'}
+                className={filterByName === 'all' ? 'is-active' : ''}
                 onClick={() => setFilterByName('all')}
               >
                 All
@@ -124,7 +140,7 @@ export const App = () => {
                     key={user.id}
                     data-cy="FilterUser"
                     href={`#/${user.name}`}
-                    className={filterByName === `${user.name}` && 'is-active'}
+                    className={filterByName === `${user.name}` ? 'is-active' : ''}
                     onClick={() => setFilterByName(user.name)}
                   >
                     {user.name}
@@ -147,15 +163,17 @@ export const App = () => {
                 <span className="icon is-left">
                   <i className="fas fa-search" aria-hidden="true"/>
                 </span>
-
-                <span className="icon is-right">
+                {
+                  filterBySearch.length !== 0 &&
+                 (
+                  <span className="icon is-right">
                   <button
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
                     onClick={handleClearSearch}
                   />
-                </span>
+                </span>)}
               </p>
             </div>
 
@@ -195,6 +213,7 @@ export const App = () => {
               })}
             </div>
 
+            {!allFiltersDefault() &&
             <div className="panel-block">
               <a
                 data-cy="ResetAllButton"
@@ -205,16 +224,17 @@ export const App = () => {
                 Reset all filters
               </a>
             </div>
+            }
+
           </nav>
         </div>
 
         <div className="box table-container">
-          {filterProducts().length === 0 && (
+          {filterProducts().length === 0 ? (
             <p data-cy="NoMatchingMessage">
               No products matching selected criteria
             </p>
-          )}
-
+          ) : (
           <table
             data-cy="ProductTable"
             className="table is-striped is-narrow is-fullwidth"
@@ -277,9 +297,7 @@ export const App = () => {
                         <i
                           data-cy="SortIcon"
                           className="fas fa-sort"
-                          onClick={() => {
-                            setSortBy('user');
-                          }}
+                          onClick={() => handleSortName()}
                         />
                       </span>
                     </a>
@@ -315,6 +333,7 @@ export const App = () => {
               })}
             </tbody>
           </table>
+        )}
         </div>
       </div>
     </div>
