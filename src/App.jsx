@@ -21,23 +21,55 @@ const products = productsFromServer.map(product => {
   };
 });
 
-function filterAndSortProducts() {
-  return products;
-}
-
 export const App = () => {
   const [filterByName, setFilterByName] = useState('all');
   const [filterByCategory, setFilterByCategory] = useState([]);
   const [filterBySearch, setFilterBySearch] = useState('');
 
+  const filterProducts = () => {
+    const sorted = [...products];
+
+    const filteredByName =
+      filterByName === 'all'
+        ? sorted
+        : sorted.filter(product => product.users.name === filterByName);
+
+    const filteredByCategory =
+      filterByCategory.length === 0
+        ? filteredByName
+        : filteredByName.filter(product =>
+          filterByCategory.includes(product.category.title),
+        );
+
+    const searched =
+      filterBySearch === ''
+        ? filteredByCategory
+        : filteredByCategory.filter(product =>
+          product.name.toLowerCase().includes(filterBySearch),
+        );
+
+    return searched;
+  };
+
+  const sortProducts = () => {
+    
+  }
+
   const handleFilterCategory = event => {
     event.preventDefault();
     const categoryTitle = event.currentTarget.textContent;
 
-    setFilterByCategory(prev =>
-      prev.includes(categoryTitle)
-        ? prev.filter(title => title !== categoryTitle)
-        : [...prev, categoryTitle])
+    setFilterByCategory(
+      prev =>
+        prev.includes(categoryTitle)
+          ? prev.filter(title => title !== categoryTitle)
+          : [...prev, categoryTitle],
+      // eslint-disable-next-line function-paren-newline
+    );
+  };
+
+  const handleSearch = event => {
+    setFilterBySearch(event.target.value.trim().toLowerCase());
   };
 
   function resetAllFilters() {
@@ -87,7 +119,7 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  onChange={handleSearch}
                 />
 
                 <span className="icon is-left">
@@ -155,9 +187,11 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          <p data-cy="NoMatchingMessage">
-            No products matching selected criteria
-          </p>
+          {filterProducts().length === 0 && (
+            <p data-cy="NoMatchingMessage">
+              No products matching selected criteria
+            </p>
+          )}
 
           <table
             data-cy="ProductTable"
@@ -212,7 +246,7 @@ export const App = () => {
             </thead>
 
             <tbody>
-              {filterAndSortProducts().map(product => {
+              {filterProducts().map(product => {
                 return (
                   <tr data-cy="Product" key={product.id}>
                     <td className="has-text-weight-bold" data-cy="ProductId">
