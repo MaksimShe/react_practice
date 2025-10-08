@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 import './App.scss';
 
@@ -25,6 +26,8 @@ export const App = () => {
   const [filterByName, setFilterByName] = useState('all');
   const [filterByCategory, setFilterByCategory] = useState([]);
   const [filterBySearch, setFilterBySearch] = useState('');
+  const [sortBy, setSortBy] = useState('');
+  const [sortIsReversed, setSortIsReversed] = useState(false);
 
   const filterProducts = () => {
     const sorted = [...products];
@@ -38,21 +41,40 @@ export const App = () => {
       filterByCategory.length === 0
         ? filteredByName
         : filteredByName.filter(product =>
-          filterByCategory.includes(product.category.title),
-        );
+          filterByCategory.includes(product.category.title),);
 
     const searched =
       filterBySearch === ''
         ? filteredByCategory
         : filteredByCategory.filter(product =>
-          product.name.toLowerCase().includes(filterBySearch),
-        );
+          product.name.toLowerCase().includes(filterBySearch),);
 
-    return searched;
+    return sortProducts(searched);
   };
 
-  const sortProducts = () => {
-    
+  function sortProducts (arr) {
+    switch (sortBy) {
+      case 'id':
+        arr.sort((a, b) => a - b);
+        break;
+      case 'product':
+        arr.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'category':
+        arr.sort((a, b) => a.category.title.localeCompare(b.category.title));
+        break;
+      case 'user':
+        arr.sort((a, b) => a.users.name.localeCompare(b.users.name));
+        break;
+      default:
+        break
+    }
+
+    return arr;
+  };
+
+  const handleClearSearch = event => {
+    setFilterBySearch('');
   }
 
   const handleFilterCategory = event => {
@@ -64,7 +86,6 @@ export const App = () => {
         prev.includes(categoryTitle)
           ? prev.filter(title => title !== categoryTitle)
           : [...prev, categoryTitle],
-      // eslint-disable-next-line function-paren-newline
     );
   };
 
@@ -119,19 +140,20 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
+                  value={filterBySearch}
                   onChange={handleSearch}
                 />
 
                 <span className="icon is-left">
-                  <i className="fas fa-search" aria-hidden="true" />
+                  <i className="fas fa-search" aria-hidden="true"/>
                 </span>
 
                 <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                   <button
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onClick={handleClearSearch}
                   />
                 </span>
               </p>
@@ -204,7 +226,12 @@ export const App = () => {
                     ID
                     <a href="#/">
                       <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
+                        <i
+                          data-cy="SortIcon"
+                          className="fas fa-sort"
+                            onClick={() => {
+                            setSortBy('id');
+                          }}/>
                       </span>
                     </a>
                   </span>
@@ -215,7 +242,12 @@ export const App = () => {
                     Product
                     <a href="#/">
                       <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-down" />
+                        <i
+                          data-cy="SortIcon"
+                          className="fas fa-sort-down"
+                          onClick={() => {
+                            setSortBy('product');
+                          }}/>
                       </span>
                     </a>
                   </span>
@@ -226,7 +258,12 @@ export const App = () => {
                     Category
                     <a href="#/">
                       <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-up" />
+                        <i
+                          data-cy="SortIcon"
+                          className="fas fa-sort-up"
+                          onClick={() => {
+                            setSortBy('category');
+                          }}/>
                       </span>
                     </a>
                   </span>
@@ -237,7 +274,13 @@ export const App = () => {
                     User
                     <a href="#/">
                       <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
+                        <i
+                          data-cy="SortIcon"
+                          className="fas fa-sort"
+                          onClick={() => {
+                            setSortBy('user');
+                          }}
+                        />
                       </span>
                     </a>
                   </span>
